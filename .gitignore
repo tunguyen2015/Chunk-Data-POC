@@ -373,6 +373,3 @@ FodyWeavers.xsd
 *.nuget.props
 *.nuget.targets
 *.nuget.dgspec.json
-
-# Build output JSON files (chunking results)
-chunked_pieces_*.json

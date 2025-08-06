@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-08-06T18:29:05Z",
+  "totalChunks": 3,
+  "chunkingStrategy": "RecursiveCharacterSplit",
+  "source": "plain_sample_document.docx",
+  "chunks": [
+    {
+      "text": "Plain Sample Document\n\n1. Introduction\n\nThis document is a demonstration of a simple DOCX file with plain black text. It is free of colors, intense styles, or special effects. The purpose is to show how a clean, professional document can be created programmatically.\n\n2. Background\n\nThe DOCX format is widely used in both business and academia. By using tools such as python-docx, it is possible to generate documents dynamically, which is particularly useful for reporting and automation purposes.",
+      "metadata": {
+        "id": 1,
+        "startIndex": 0,
+        "endIndex": 497,
+        "length": 498,
+        "chunkType": "RecursiveCharacterSplit",
+        "source": "plain_sample_document.docx",
+        "additionalMetadata": {
+          "chunkSize": 500,
+          "chunkOverlap": 100,
+          "separators": [
+            "\n\n",
+            "\n",
+            ".",
+            " "
+          ],
+          "hasOverlap": false,
+          "actualSeparatorUsed": "\\n\\n (paragraph)"
+        }
+      }
+    },
+    {
+      "text": " generate documents dynamically, which is particularly useful for reporting and automation purposes. 3. Features\n\nThe following are the features of this document:\n\n- Simple structure with headings and paragraphs.\n\n- No use of colors or decorative formatting.\n\n- Supports tables and lists.\n\n- Easy to extend or modify programmatically.\n\n4. Table Example\n\nThe table below presents sample data in a plain format:\n\n5. Conclusion",
+      "metadata": {
+        "id": 2,
+        "startIndex": 399,
+        "endIndex": 822,
+        "length": 424,
+        "chunkType": "RecursiveCharacterSplit",
+        "source": "plain_sample_document.docx",
+        "additionalMetadata": {
+          "chunkSize": 500,
+          "chunkOverlap": 100,
+          "separators": [
+            "\n\n",
+            "\n",
+            ".",
+            " "
+          ],
+          "hasOverlap": true,
+          "actualSeparatorUsed": "\\n\\n (paragraph)"
+        }
+      }
+    },
+    {
+      "text": "matically.\n\n4. Table Example\n\nThe table below presents sample data in a plain format:\n\n5. Conclusion This sample demonstrates a straightforward approach to generating a Word document. While it lacks decorative formatting, it serves well for use cases where simplicity and readability are priorities.",
+      "metadata": {
+        "id": 3,
+        "startIndex": 723,
+        "endIndex": 1021,
+        "length": 299,
+        "chunkType": "RecursiveCharacterSplit",
+        "source": "plain_sample_document.docx",
+        "additionalMetadata": {
+          "chunkSize": 500,
+          "chunkOverlap": 100,
+          "separators": [
+            "\n\n",
+            "\n",
+            ".",
+            " "
+          ],
+          "hasOverlap": true,
+          "actualSeparatorUsed": "\\n\\n (paragraph)"
+        }
+      }
+    }
+  ]
+}

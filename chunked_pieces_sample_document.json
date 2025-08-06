@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-08-06T18:29:05Z",
+  "totalChunks": 2,
+  "chunkingStrategy": "RecursiveCharacterSplit",
+  "source": "sample_document.docx",
+  "chunks": [
+    {
+      "text": "Sample Document\n\nThis is a sample DOCX document generated using python-docx.\n\nSection 1: Introduction\n\nThis section provides an overview of the sample content. The purpose of this document is to demonstrate how a Word file can be programmatically generated.\n\nSection 2: Main Content\n\nHere is the main content. You can include lists, tables, and other rich text features.\n\nKey Features:\n\n• Easy generation of DOCX files\n\n• Custom headings and styles\n\n• Can include tables and images",
+      "metadata": {
+        "id": 1,
+        "startIndex": 0,
+        "endIndex": 480,
+        "length": 481,
+        "chunkType": "RecursiveCharacterSplit",
+        "source": "sample_document.docx",
+        "additionalMetadata": {
+          "chunkSize": 500,
+          "chunkOverlap": 100,
+          "separators": [
+            "\n\n",
+            "\n",
+            ".",
+            " "
+          ],
+          "hasOverlap": false,
+          "actualSeparatorUsed": "\\n\\n (paragraph)"
+        }
+      }
+    },
+    {
+      "text": "res:\n\n• Easy generation of DOCX files\n\n• Custom headings and styles\n\n• Can include tables and images Section 3: Table Example",
+      "metadata": {
+        "id": 2,
+        "startIndex": 381,
+        "endIndex": 505,
+        "length": 125,
+        "chunkType": "RecursiveCharacterSplit",
+        "source": "sample_document.docx",
+        "additionalMetadata": {
+          "chunkSize": 500,
+          "chunkOverlap": 100,
+          "separators": [
+            "\n\n",
+            "\n",
+            ".",
+            " "
+          ],
+          "hasOverlap": true,
+          "actualSeparatorUsed": "\\n\\n (paragraph)"
+        }
+      }
+    }
+  ]
+}
