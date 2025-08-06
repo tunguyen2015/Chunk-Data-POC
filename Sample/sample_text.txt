@@ -1,0 +1,19 @@
+Sample Text Document
+
+This is a simple text file for testing the multi-file chunking functionality. 
+
+Natural Language Processing
+
+Natural Language Processing (NLP) is a field of artificial intelligence that focuses on the interaction between computers and humans through the use of natural language. The ultimate objective of NLP is to read, decipher, understand, and make sense of the human languages in a manner that is valuable.
+
+Text Processing
+
+Text processing involves manipulating and analyzing textual data to extract meaningful information. This includes tasks such as tokenization, stemming, lemmatization, and named entity recognition.
+
+Document Analysis
+
+Document analysis is the process of examining documents to understand their structure, content, and meaning. This can involve parsing different file formats, extracting text, and identifying key components.
+
+Conclusion
+
+This sample document demonstrates various aspects of text processing and provides content suitable for chunking algorithms to process effectively.

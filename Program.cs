@@ -15,60 +15,97 @@ namespace DocumentChunker
 
             try
             {
-                // Read document from Sample folder
-                Console.WriteLine("Reading document from Sample folder...");
+                // Read all documents from Sample folder
+                Console.WriteLine("Reading all documents from Sample folder...");
                 Console.WriteLine("Supported formats: TXT, DOCX, PDF, MD");
-                var (document, sourceFileName) = await documentReader.ReadDocumentFromSampleFolderAsync();
-                Console.WriteLine($"📄 Document length: {document.Length} characters");
-                Console.WriteLine($"📄 Source: {sourceFileName}\n");
-
-                // Apply RecursiveCharacterTextSplitter (LLM-optimized chunking)
-                Console.WriteLine("⭐ Applying RecursiveCharacterTextSplitter (LLM-Optimized)");
-                Console.WriteLine("   Parameters: chunk_size=500, chunk_overlap=100");
-                Console.WriteLine("   Separators: [\"\\n\\n\", \"\\n\", \".\", \" \"]");
+                var documents = await documentReader.ReadAllDocumentsFromSampleFolderAsync();
                 
-                var chunks = chunkingService.ChunkByRecursiveCharacterSplit(
-                    document, 
-                    chunkSize: 500, 
-                    chunkOverlap: 100, 
-                    separators: new[] { "\n\n", "\n", ".", " " }
-                );
-                
-                Console.WriteLine($"   Generated {chunks.Count} LLM-friendly chunks\n");
-
-                // Save to JSON file in dictionary format (text + metadata)
-                var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "chunked_pieces.json");
-                Console.WriteLine("💾 Saving chunks to chunked_pieces.json in dictionary format (text + metadata)...");
-                await fileService.SaveChunksDictionaryToJsonAsync(chunks, outputPath, sourceFileName);
-
-                Console.WriteLine($"\n🎉 Success! Generated {chunks.Count} chunks from sample document");
-                Console.WriteLine($"📄 Source: {sourceFileName}");
-                Console.WriteLine($"📊 Document length: {document.Length} characters");
-                Console.WriteLine($"📁 Output file: {outputPath}");
-                
-                // Show chunk analysis
-                Console.WriteLine("\n📊 Chunk Analysis:");
-                var avgLength = chunks.Average(c => c.Length);
-                var minLength = chunks.Min(c => c.Length);
-                var maxLength = chunks.Max(c => c.Length);
-                
-                Console.WriteLine($"   Average chunk length: {avgLength:F0} characters");
-                Console.WriteLine($"   Minimum chunk length: {minLength} characters");
-                Console.WriteLine($"   Maximum chunk length: {maxLength} characters");
-
-                // Analyze separator usage
-                var separatorStats = chunks
-                    .Where(c => c.Metadata.ContainsKey("actualSeparatorUsed") && c.Metadata["actualSeparatorUsed"] != null)
-                    .GroupBy(c => c.Metadata["actualSeparatorUsed"]!.ToString()!)
-                    .ToDictionary(g => g.Key, g => g.Count());
-
-                Console.WriteLine("\n📋 Separator Usage:");
-                foreach (var stat in separatorStats.OrderByDescending(s => s.Value))
+                if (!documents.Any())
                 {
-                    Console.WriteLine($"   {stat.Key}: {stat.Value} chunks");
+                    Console.WriteLine("❌ No documents found in Sample folder.");
+                    Console.WriteLine("Press any key to exit...");
+                    Console.Read();
+                    return;
                 }
 
-                Console.WriteLine("\n✨ Chunks are optimized for:");
+                Console.WriteLine($"\n📊 Total documents to process: {documents.Count}\n");
+
+                var totalProcessedChunks = 0;
+                var processedFiles = new List<string>();
+
+                // Process each document individually
+                foreach (var (document, sourceFileName) in documents)
+                {
+                    Console.WriteLine($"� Processing: {sourceFileName}");
+                    Console.WriteLine($"📄 Document length: {document.Length} characters");
+
+                    // Apply RecursiveCharacterTextSplitter (LLM-optimized chunking)
+                    Console.WriteLine("⭐ Applying RecursiveCharacterTextSplitter (LLM-Optimized)");
+                    Console.WriteLine("   Parameters: chunk_size=500, chunk_overlap=100");
+                    Console.WriteLine("   Separators: [\"\\n\\n\", \"\\n\", \".\", \" \"]");
+                    
+                    var chunks = chunkingService.ChunkByRecursiveCharacterSplit(
+                        document, 
+                        chunkSize: 500, 
+                        chunkOverlap: 100, 
+                        separators: new[] { "\n\n", "\n", ".", " " }
+                    );
+                    
+                    Console.WriteLine($"   Generated {chunks.Count} LLM-friendly chunks");
+
+                    // Create output file name using the format: chunked_pieces_[filename].json
+                    var fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(sourceFileName);
+                    var outputFileName = $"chunked_pieces_{fileNameWithoutExtension}.json";
+                    var outputPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), outputFileName);
+                    
+                    Console.WriteLine($"💾 Saving chunks to {outputFileName} in dictionary format (text + metadata)...");
+                    await fileService.SaveChunksDictionaryToJsonAsync(chunks, outputPath, sourceFileName);
+
+                    totalProcessedChunks += chunks.Count;
+                    processedFiles.Add(outputFileName);
+
+                    // Show individual file chunk analysis
+                    Console.WriteLine($"📊 Analysis for {sourceFileName}:");
+                    var avgLength = chunks.Average(c => c.Length);
+                    var minLength = chunks.Min(c => c.Length);
+                    var maxLength = chunks.Max(c => c.Length);
+                    
+                    Console.WriteLine($"   Average chunk length: {avgLength:F0} characters");
+                    Console.WriteLine($"   Minimum chunk length: {minLength} characters");
+                    Console.WriteLine($"   Maximum chunk length: {maxLength} characters");
+
+                    // Analyze separator usage for this file
+                    var separatorStats = chunks
+                        .Where(c => c.Metadata.ContainsKey("actualSeparatorUsed") && c.Metadata["actualSeparatorUsed"] != null)
+                        .GroupBy(c => c.Metadata["actualSeparatorUsed"]!.ToString()!)
+                        .ToDictionary(g => g.Key, g => g.Count());
+
+                    if (separatorStats.Any())
+                    {
+                        Console.WriteLine("   Separator Usage:");
+                        foreach (var stat in separatorStats.OrderByDescending(s => s.Value))
+                        {
+                            Console.WriteLine($"     {stat.Key}: {stat.Value} chunks");
+                        }
+                    }
+
+                    Console.WriteLine($"✅ Completed: {outputFileName}\n");
+                }
+
+                // Final summary
+                Console.WriteLine("🎉 Successfully processed all documents!");
+                Console.WriteLine($"📊 Summary:");
+                Console.WriteLine($"   • Total documents processed: {documents.Count}");
+                Console.WriteLine($"   • Total chunks generated: {totalProcessedChunks}");
+                Console.WriteLine($"   • Average chunks per document: {(double)totalProcessedChunks / documents.Count:F1}");
+
+                Console.WriteLine("\n📁 Output files created:");
+                foreach (var fileName in processedFiles)
+                {
+                    Console.WriteLine($"   • {fileName}");
+                }
+
+                Console.WriteLine("\n✨ All chunks are optimized for:");
                 Console.WriteLine("   • Large Language Model processing");
                 Console.WriteLine("   • Maintaining semantic coherence");
                 Console.WriteLine("   • Preserving context across chunk boundaries");

@@ -9,6 +9,7 @@ namespace DocumentChunker.Services
     public interface IDocumentReaderService
     {
         Task<(string content, string fileName)> ReadDocumentFromSampleFolderAsync();
+        Task<List<(string content, string fileName)>> ReadAllDocumentsFromSampleFolderAsync();
         Task<string> ReadDocumentAsync(string filePath);
         bool IsDocumentSupported(string filePath);
     }
@@ -47,6 +48,51 @@ namespace DocumentChunker.Services
             
             var content = await ReadDocumentAsync(filePath);
             return (content, fileName);
+        }
+
+        public async Task<List<(string content, string fileName)>> ReadAllDocumentsFromSampleFolderAsync()
+        {
+            var sampleFolder = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Sample");
+            
+            if (!Directory.Exists(sampleFolder))
+            {
+                throw new DirectoryNotFoundException($"Sample folder not found: {sampleFolder}");
+            }
+
+            // Look for supported file types in the Sample folder
+            var sampleFiles = new List<string>();
+
+            foreach (var ext in _supportedExtensions)
+            {
+                sampleFiles.AddRange(Directory.GetFiles(sampleFolder, $"*{ext}"));
+            }
+
+            if (!sampleFiles.Any())
+            {
+                throw new FileNotFoundException($"No supported files found in Sample folder. Supported formats: {string.Join(", ", _supportedExtensions)}");
+            }
+
+            Console.WriteLine($"📄 Found {sampleFiles.Count} documents in Sample folder:");
+            
+            var results = new List<(string content, string fileName)>();
+            
+            foreach (var filePath in sampleFiles)
+            {
+                var fileName = System.IO.Path.GetFileName(filePath);
+                Console.WriteLine($"   • {fileName}");
+                
+                try
+                {
+                    var content = await ReadDocumentAsync(filePath);
+                    results.Add((content, fileName));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"   ⚠️ Warning: Could not read {fileName}: {ex.Message}");
+                }
+            }
+
+            return results;
         }
 
         public async Task<string> ReadDocumentAsync(string filePath)
