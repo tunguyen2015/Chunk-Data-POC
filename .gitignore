@@ -360,3 +360,19 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Additional build artifacts and output files
+*.runtimeconfig.json
+*.runtimeconfig.dev.json
+*.GlobalUsings.g.cs
+*.Up2Date
+*.AssemblyAttributes.cs
+*.editorconfig
+
+# NuGet related
+*.nuget.props
+*.nuget.targets
+*.nuget.dgspec.json
+
+# Build output JSON files (chunking results)
+chunked_pieces_*.json
