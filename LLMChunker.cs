@@ -12,12 +12,14 @@ namespace DocumentChunker
 
             var chunkingService = new ChunkingService();
             var fileService = new FileService();
+            var documentReader = new DocumentReaderService();
 
             try
             {
-                // Use built-in sample document
-                Console.WriteLine("Using built-in sample document...");
-                var document = GetSampleDocument();
+                // Read document from Sample folder
+                Console.WriteLine("Reading document from Sample folder...");
+                Console.WriteLine("Supported formats: TXT, DOCX, PDF, MD");
+                var (document, sourceFileName) = await documentReader.ReadDocumentFromSampleFolderAsync();
                 Console.WriteLine($"📄 Document length: {document.Length} characters");
                 Console.WriteLine($"📄 Word count: {document.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length} words\n");
 
@@ -78,7 +80,7 @@ namespace DocumentChunker
                 // Save LLM-optimized chunks to JSON in dictionary format
                 var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "llm-chunks.json");
                 Console.WriteLine($"\n💾 Saving LLM-optimized chunks to: llm-chunks.json (dictionary format)");
-                await fileService.SaveChunksDictionaryToJsonAsync(llmChunks, outputPath);
+                await fileService.SaveChunksDictionaryToJsonAsync(llmChunks, outputPath, sourceFileName);
 
                 Console.WriteLine($"\n🎉 Success! Generated {llmChunks.Count} LLM-friendly chunks");
                 Console.WriteLine("✨ These chunks are optimized for:");

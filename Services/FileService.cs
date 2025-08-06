@@ -8,7 +8,10 @@ namespace DocumentChunker.Services
         Task SaveChunksToJsonAsync(List<ChunkedPiece> chunks, string filePath);
         Task SaveEnrichedChunksToJsonAsync(List<EnrichedChunk> chunks, string filePath);
         Task SaveChunksDictionaryToJsonAsync(List<ChunkedPiece> chunks, string filePath);
+        Task SaveChunksDictionaryToJsonAsync(List<ChunkedPiece> chunks, string filePath, string sourceFileName);
         Task<string> ReadSampleDocumentAsync();
+        Task<string> ReadFileFromSampleFolderAsync();
+        Task<(string content, string fileName)> ReadFileFromSampleFolderWithSourceAsync();
     }
 
     public class FileService : IFileService
@@ -89,6 +92,44 @@ namespace DocumentChunker.Services
             await File.WriteAllTextAsync(filePath, json);
         }
 
+        public async Task SaveChunksDictionaryToJsonAsync(List<ChunkedPiece> chunks, string filePath, string sourceFileName)
+        {
+            var jsonSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            // Convert chunks to dictionary format with text and enhanced metadata
+            var chunkDictionaries = chunks.Select(chunk => new
+            {
+                text = chunk.Content,
+                metadata = new
+                {
+                    id = chunk.Id,
+                    startIndex = chunk.StartIndex,
+                    endIndex = chunk.EndIndex,
+                    length = chunk.Length,
+                    chunkType = chunk.ChunkType,
+                    source = sourceFileName,
+                    page = (int?)null, // Page number if available (null for text files)
+                    additionalMetadata = chunk.Metadata
+                }
+            }).ToList();
+
+            var output = new
+            {
+                timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                totalChunks = chunks.Count,
+                chunkingStrategy = chunks.FirstOrDefault()?.ChunkType ?? "Unknown",
+                source = sourceFileName,
+                chunks = chunkDictionaries
+            };
+
+            var json = JsonConvert.SerializeObject(output, jsonSettings);
+            await File.WriteAllTextAsync(filePath, json);
+        }
+
         public async Task<string> ReadSampleDocumentAsync()
         {
             // Sample document content
@@ -113,6 +154,100 @@ In conclusion, text chunking is a critical preprocessing step that can greatly i
 ";
 
             return await Task.FromResult(sampleDocument.Trim());
+        }
+
+        public async Task<string> ReadFileFromSampleFolderAsync()
+        {
+            var sampleFolder = Path.Combine(Directory.GetCurrentDirectory(), "Sample");
+            
+            if (!Directory.Exists(sampleFolder))
+            {
+                throw new DirectoryNotFoundException($"Sample folder not found: {sampleFolder}");
+            }
+
+            // Look for supported file types in the Sample folder
+            var supportedExtensions = new[] { ".txt", ".docx", ".md" };
+            var sampleFiles = new List<string>();
+
+            foreach (var ext in supportedExtensions)
+            {
+                sampleFiles.AddRange(Directory.GetFiles(sampleFolder, $"*{ext}"));
+            }
+
+            if (!sampleFiles.Any())
+            {
+                throw new FileNotFoundException("No supported files found in Sample folder. Supported formats: .txt, .docx, .md");
+            }
+
+            // Use the first file found
+            var filePath = sampleFiles.First();
+            var fileName = Path.GetFileName(filePath);
+            var extension = Path.GetExtension(filePath).ToLower();
+
+            Console.WriteLine($"📄 Reading file: {fileName}");
+
+            switch (extension)
+            {
+                case ".txt":
+                case ".md":
+                    var content = await File.ReadAllTextAsync(filePath);
+                    return content;
+
+                case ".docx":
+                    // For DOCX files, we'll read as plain text for now
+                    // This is a simplified approach - in production you'd want proper DOCX parsing
+                    throw new NotSupportedException("DOCX file reading requires DocumentFormat.OpenXml package. Please convert your file to .txt or .md format.");
+
+                default:
+                    throw new NotSupportedException($"File type {extension} is not supported");
+            }
+        }
+
+        public async Task<(string content, string fileName)> ReadFileFromSampleFolderWithSourceAsync()
+        {
+            var sampleFolder = Path.Combine(Directory.GetCurrentDirectory(), "Sample");
+            
+            if (!Directory.Exists(sampleFolder))
+            {
+                throw new DirectoryNotFoundException($"Sample folder not found: {sampleFolder}");
+            }
+
+            // Look for supported file types in the Sample folder
+            var supportedExtensions = new[] { ".txt", ".docx", ".md" };
+            var sampleFiles = new List<string>();
+
+            foreach (var ext in supportedExtensions)
+            {
+                sampleFiles.AddRange(Directory.GetFiles(sampleFolder, $"*{ext}"));
+            }
+
+            if (!sampleFiles.Any())
+            {
+                throw new FileNotFoundException("No supported files found in Sample folder. Supported formats: .txt, .docx, .md");
+            }
+
+            // Use the first file found
+            var filePath = sampleFiles.First();
+            var fileName = Path.GetFileName(filePath);
+            var fileExtension = Path.GetExtension(filePath).ToLower();
+
+            Console.WriteLine($"📄 Reading file: {fileName}");
+
+            switch (fileExtension)
+            {
+                case ".txt":
+                case ".md":
+                    var content = await File.ReadAllTextAsync(filePath);
+                    return (content, fileName);
+
+                case ".docx":
+                    // For DOCX files, we'll read as plain text for now
+                    // This is a simplified approach - in production you'd want proper DOCX parsing
+                    throw new NotSupportedException("DOCX file reading requires DocumentFormat.OpenXml package. Please convert your file to .txt or .md format.");
+
+                default:
+                    throw new NotSupportedException($"File type {fileExtension} is not supported");
+            }
         }
     }
 }

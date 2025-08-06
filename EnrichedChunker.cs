@@ -12,16 +12,18 @@ namespace DocumentChunker
 
             var chunkingService = new ChunkingService();
             var fileService = new FileService();
+            var documentReader = new DocumentReaderService();
 
             try
             {
-                // Use built-in sample document
-                Console.WriteLine("Using built-in sample document...");
-                var document = GetSampleDocument();
+                // Read document from Sample folder
+                Console.WriteLine("Reading document from Sample folder...");
+                Console.WriteLine("Supported formats: TXT, DOCX, PDF, MD");
+                var (document, sourceFileName) = await documentReader.ReadDocumentFromSampleFolderAsync();
                 Console.WriteLine($"📄 Document length: {document.Length} characters\n");
 
-                // Create enrichment metadata scenarios
-                var scenarios = CreateEnrichmentScenarios();
+                // Create enrichment metadata scenarios with actual source file
+                var scenarios = CreateEnrichmentScenarios(sourceFileName);
 
                 foreach (var scenario in scenarios)
                 {
@@ -45,7 +47,7 @@ namespace DocumentChunker
                 }
 
                 // Create a comprehensive enriched dataset
-                await CreateComprehensiveEnrichedDataset(document, chunkingService, fileService);
+                await CreateComprehensiveEnrichedDataset(document, sourceFileName, chunkingService, fileService);
 
                 Console.WriteLine("🎉 Enriched chunking completed successfully!");
                 Console.WriteLine("\n📁 Generated Files:");
@@ -66,7 +68,7 @@ namespace DocumentChunker
             }
         }
 
-        private static List<EnrichmentScenario> CreateEnrichmentScenarios()
+        private static List<EnrichmentScenario> CreateEnrichmentScenarios(string sourceFileName)
         {
             return new List<EnrichmentScenario>
             {
@@ -75,7 +77,7 @@ namespace DocumentChunker
                     Name = "Sample Document Page 1",
                     Metadata = new DocumentMetadata
                     {
-                        Source = "built-in-sample.txt",
+                        Source = sourceFileName,
                         Page = 1
                     }
                 },
@@ -84,7 +86,7 @@ namespace DocumentChunker
                     Name = "Sample Document Page 2",
                     Metadata = new DocumentMetadata
                     {
-                        Source = "built-in-sample.txt",
+                        Source = sourceFileName,
                         Page = 2
                     }
                 },
@@ -93,20 +95,20 @@ namespace DocumentChunker
                     Name = "Sample Document No Page",
                     Metadata = new DocumentMetadata
                     {
-                        Source = "built-in-sample.txt",
+                        Source = sourceFileName,
                         Page = null
                     }
                 }
             };
         }
 
-        private static async Task CreateComprehensiveEnrichedDataset(string document, ChunkingService chunkingService, FileService fileService)
+        private static async Task CreateComprehensiveEnrichedDataset(string document, string sourceFileName, ChunkingService chunkingService, FileService fileService)
         {
             Console.WriteLine("🔄 Creating comprehensive enriched dataset...");
 
             var comprehensiveMetadata = new DocumentMetadata
             {
-                Source = "built-in-sample.txt",
+                Source = sourceFileName,
                 Page = 1
             };
 

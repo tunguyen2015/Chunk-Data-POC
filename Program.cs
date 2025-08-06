@@ -11,14 +11,16 @@ namespace DocumentChunker
 
             var chunkingService = new ChunkingService();
             var fileService = new FileService();
+            var documentReader = new DocumentReaderService();
 
             try
             {
-                // Use built-in sample document
-                Console.WriteLine("Using built-in sample document...");
-                var document = GetSampleDocument();
+                // Read document from Sample folder
+                Console.WriteLine("Reading document from Sample folder...");
+                Console.WriteLine("Supported formats: TXT, DOCX, PDF, MD");
+                var (document, sourceFileName) = await documentReader.ReadDocumentFromSampleFolderAsync();
                 Console.WriteLine($"📄 Document length: {document.Length} characters");
-                Console.WriteLine($"📄 Source: Built-in sample text\n");
+                Console.WriteLine($"📄 Source: {sourceFileName}\n");
 
                 // Apply RecursiveCharacterTextSplitter (LLM-optimized chunking)
                 Console.WriteLine("⭐ Applying RecursiveCharacterTextSplitter (LLM-Optimized)");
@@ -37,10 +39,10 @@ namespace DocumentChunker
                 // Save to JSON file in dictionary format (text + metadata)
                 var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "chunked_pieces.json");
                 Console.WriteLine("💾 Saving chunks to chunked_pieces.json in dictionary format (text + metadata)...");
-                await fileService.SaveChunksDictionaryToJsonAsync(chunks, outputPath);
+                await fileService.SaveChunksDictionaryToJsonAsync(chunks, outputPath, sourceFileName);
 
                 Console.WriteLine($"\n🎉 Success! Generated {chunks.Count} chunks from sample document");
-                Console.WriteLine($"📄 Source: Built-in sample text");
+                Console.WriteLine($"📄 Source: {sourceFileName}");
                 Console.WriteLine($"📊 Document length: {document.Length} characters");
                 Console.WriteLine($"📁 Output file: {outputPath}");
                 
