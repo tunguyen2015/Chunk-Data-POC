@@ -207,7 +207,3 @@ This chunking implementation is suitable for:
 - **Machine Learning**: Preparing training data for NLP models
 - **Chatbot Training**: Maintaining conversational context
 - **Content Summarization**: Processing documents in logical segments
-
-## License
-
-This project is for educational and demonstration purposes.
